@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>pen</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- 앱 프레임 (모바일) -->
+  <div class="app" id="app">
+
+    <!-- 첫 진입 화면: 심박선 -> 필기체 pen -->
+    <section class="splash" id="splash">
+      <svg class="ecg" viewBox="0 0 1520 300" preserveAspectRatio="xMidYMid meet" aria-label="pen">
+        <!--
+          심박선 + pen 이 하나의 연속된 획 (defs 에 정의, pathLength=1 로 정규화).
+          평평한 선 -> 심박 4회 -> 여백 -> 필기체 'pen' -> 평평한 선.
+        -->
+        <defs>
+          <path id="ecgpath" pathLength="1"
+            d="M0,150 L160,150
+               L168,150 L176,140 L184,150 L194,150 L202,168 L214,52 L226,198 L238,150 L248,138 L256,150
+               L400,150
+               L408,150 L416,140 L424,150 L434,150 L442,168 L454,52 L466,198 L478,150 L488,138 L496,150
+               L640,150
+               L648,150 L656,140 L664,150 L674,150 L682,168 L694,52 L706,198 L718,150 L728,138 L736,150
+               L880,150
+               L888,150 L896,140 L904,150 L914,150 L922,168 L934,52 L946,198 L958,150 L968,138 L976,150
+               L1140,150
+               C1146,128 1150,108 1150,96
+               C1150,140 1150,182 1150,224
+               C1150,182 1150,140 1152,100
+               C1160,88 1188,90 1188,118
+               C1188,140 1164,146 1152,146
+               C1160,148 1170,150 1180,150
+               C1192,150 1202,150 1210,140
+               C1220,128 1216,108 1200,110
+               C1186,112 1184,138 1200,146
+               C1214,152 1224,150 1234,150
+               C1240,150 1242,100 1254,100
+               C1266,100 1268,150 1268,150
+               C1270,150 1276,100 1288,100
+               C1300,100 1302,150 1304,150
+               L1520,150" />
+        </defs>
+
+        <!-- 지워지는 꼬리(trail): script.js 가 여러 겹의 path 를 생성해 넣음
+             (앞은 진하고 뒤로 갈수록 옅게 겹쳐서 그라데이션) -->
+        <g id="trail"></g>
+
+        <!-- 선두의 검은 점: 경로를 따라 이동하며 선을 그림 -->
+        <circle id="dot" class="dot" r="8" fill="#000" cx="0" cy="150" />
+      </svg>
+    </section>
+
+    <!-- 심박동 후 화면: 인트로 문구가 또렷하게 떴다가 애플식으로 흐려지며 사라짐 -->
+    <section class="main-screen" id="main">
+      <p class="intro-line intro-line--1">당신과 세상을 써내려갈,</p>
+      <p class="intro-line intro-line--2">세상의 단 하나뿐인 펜</p>
+      <p class="intro-line intro-line--3">The world begins at the tip of my pen.</p>
+    </section>
+
+    <!-- 메인 쇼핑 화면 (미니멀 초안) -->
+    <section class="shop" id="shop">
+      <header class="shop-head">
+        <h1 class="brand">
+          <img class="brand-logo" src="assets/logo-tip.png" alt="펜의 끝 · The Tip of the Pen" />
+        </h1>
+        <div class="shop-actions">
+          <span class="acct-wrap" id="acctWrap"></span>
+          <button type="button" class="shop-cart" id="shopCart" aria-label="장바구니">
+            <span class="cart-ico" aria-hidden="true">🛒</span>
+            <span class="cart-badge" id="badge1">0</span>
+          </button>
+        </div>
+      </header>
+
+      <p class="shop-slogan">The world begins at the tip of my pen.</p>
+
+      <section class="collection">
+        <div class="collection-head">
+          <span class="section-label">COLLECTION</span>
+          <span class="section-count" id="sectionCount">01</span>
+        </div>
+
+        <!-- 커스텀 카드는 고정, 나머지 상품은 GET /products 로 렌더 -->
+        <ul class="product-list" id="productList">
+          <li class="product product--custom" id="openCustom">
+            <div class="thumb thumb--custom">
+              <span class="custom-tag">CUSTOM</span>
+            </div>
+            <div class="meta">
+              <span class="name">커스텀 볼펜 · 나만의</span>
+              <span class="price">₩ 20,000 ~</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+    </section>
+
+    <!-- 커스텀 볼펜 화면: 3D 미리보기 + 옵션 -->
+    <section class="custom" id="custom">
+      <header class="custom-bar">
+        <button type="button" class="cbtn back" id="customBack" aria-label="뒤로">←</button>
+        <span class="custom-title">커스텀 볼펜</span>
+        <button type="button" class="cbtn" id="customCart" aria-label="장바구니">
+          <span class="cart-ico" aria-hidden="true">🛒</span>
+          <span class="cart-badge" id="badge2">0</span>
+        </button>
+      </header>
+
+      <div class="stage" id="stage">
+        <span class="stage-hint">드래그하여 돌려보기</span>
+      </div>
+
+      <div class="controls">
+        <div class="ctrl">
+          <span class="ctrl-label">색상</span>
+          <div class="chips" id="colorChips"></div>
+        </div>
+        <div class="ctrl">
+          <span class="ctrl-label">문양 각인</span>
+          <div class="chips" id="patternChips"></div>
+        </div>
+        <div class="ctrl">
+          <span class="ctrl-label">팁 굵기 <em>(mm)</em></span>
+          <div class="seg" id="tipSeg"></div>
+        </div>
+        <div class="ctrl">
+          <span class="ctrl-label">심 종류</span>
+          <div class="seg" id="refillSeg"></div>
+        </div>
+        <div class="ctrl">
+          <span class="ctrl-label">각인 문구</span>
+          <input class="engrave" id="engrave" type="text" placeholder="영문 최대 10자" />
+        </div>
+      </div>
+
+      <div class="buybar">
+        <div class="price-box">
+          <span class="price-label">합계</span>
+          <span class="price-val" id="priceVal">₩ 20,000</span>
+        </div>
+        <button type="button" class="add-btn" id="addCart">장바구니 담기</button>
+      </div>
+    </section>
+
+    <!-- 상품 상세 페이지 -->
+    <section class="detail" id="detail">
+      <header class="custom-bar">
+        <button type="button" class="cbtn back" id="detailBack" aria-label="뒤로">←</button>
+        <span class="custom-title">상품</span>
+        <button type="button" class="cbtn" id="detailCart" aria-label="장바구니">
+          <span class="cart-ico" aria-hidden="true">🛒</span>
+          <span class="cart-badge" id="badge3">0</span>
+        </button>
+      </header>
+
+      <div class="detail-body" id="detailBody">
+        <div class="detail-hero" id="detailHero"></div>
+        <div class="detail-info">
+          <span class="detail-label">THE TIP OF THE PEN</span>
+          <h2 class="detail-name" id="detailName">-</h2>
+          <p class="detail-price" id="detailPrice">-</p>
+          <p class="detail-desc">장인의 손끝에서 완성된 하나의 도구. 오래 곁에 두고 쓰는 펜.</p>
+        </div>
+      </div>
+
+      <div class="buybar">
+        <div class="price-box">
+          <span class="price-label">가격</span>
+          <span class="price-val" id="detailBuyPrice">-</span>
+        </div>
+        <button type="button" class="add-btn" id="detailAdd">장바구니 담기</button>
+      </div>
+    </section>
+
+    <!-- 로그인 / 회원가입 화면 -->
+    <section class="auth" id="auth">
+      <header class="custom-bar">
+        <button type="button" class="cbtn back" id="authBack" aria-label="뒤로">←</button>
+        <span class="custom-title">계정</span>
+        <span class="cbtn-spacer"></span>
+      </header>
+
+      <div class="auth-body">
+        <div class="auth-brand">펜의 끝</div>
+        <p class="auth-sub">The Tip of the Pen</p>
+
+        <div class="auth-tabs">
+          <button type="button" class="auth-tab on" data-tab="login">로그인</button>
+          <button type="button" class="auth-tab" data-tab="signup">회원가입</button>
+        </div>
+
+        <!-- 로그인 -->
+        <form class="auth-form" id="loginForm" novalidate>
+          <label class="field">
+            <span>이메일</span>
+            <input type="email" name="email" autocomplete="email" placeholder="you@example.com" required />
+          </label>
+          <label class="field">
+            <span>비밀번호</span>
+            <input type="password" name="password" autocomplete="current-password" placeholder="비밀번호" required />
+          </label>
+          <p class="auth-msg" id="loginMsg"></p>
+          <button type="submit" class="auth-submit">로그인</button>
+        </form>
+
+        <!-- 회원가입 -->
+        <form class="auth-form hidden" id="signupForm" novalidate>
+          <label class="field">
+            <span>이름</span>
+            <input type="text" name="name" autocomplete="name" placeholder="이름" required />
+          </label>
+          <label class="field">
+            <span>이메일</span>
+            <input type="email" name="email" autocomplete="email" placeholder="you@example.com" required />
+          </label>
+          <label class="field">
+            <span>비밀번호</span>
+            <input type="password" name="password" autocomplete="new-password" placeholder="4자 이상" minlength="4" required />
+          </label>
+          <label class="field">
+            <span>비밀번호 확인</span>
+            <input type="password" name="password2" autocomplete="new-password" placeholder="비밀번호 다시 입력" required />
+          </label>
+          <p class="auth-msg" id="signupMsg"></p>
+          <button type="submit" class="auth-submit">회원가입</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- 내정보 (마이페이지) -->
+    <section class="auth mypage" id="mypage">
+      <header class="custom-bar">
+        <button type="button" class="cbtn back" id="mypageBack" aria-label="뒤로">←</button>
+        <span class="custom-title">내정보</span>
+        <span class="cbtn-spacer"></span>
+      </header>
+
+      <div class="auth-body">
+        <div class="me-summary">
+          <div class="me-avatar" id="meInitial">P</div>
+          <div class="me-id">
+            <span class="me-name" id="meName">-</span>
+            <span class="me-email" id="meEmail">-</span>
+            <span class="me-since" id="meSince"></span>
+          </div>
+        </div>
+
+        <!-- 이름 수정 -->
+        <form class="auth-form me-block" id="editForm" novalidate>
+          <div class="me-sec-label">이름 수정</div>
+          <label class="field"><span>이름</span>
+            <input type="text" name="name" autocomplete="name" required />
+          </label>
+          <label class="field"><span>현재 비밀번호</span>
+            <input type="password" name="password" autocomplete="current-password" placeholder="확인용" required />
+          </label>
+          <p class="auth-msg" id="editMsg"></p>
+          <button type="submit" class="auth-submit">이름 저장</button>
+        </form>
+
+        <!-- 비밀번호 변경 -->
+        <form class="auth-form me-block" id="pwForm" novalidate>
+          <div class="me-sec-label">비밀번호 변경</div>
+          <label class="field"><span>현재 비밀번호</span>
+            <input type="password" name="password" autocomplete="current-password" required />
+          </label>
+          <label class="field"><span>새 비밀번호</span>
+            <input type="password" name="newPassword" autocomplete="new-password" placeholder="4자 이상" minlength="4" required />
+          </label>
+          <label class="field"><span>새 비밀번호 확인</span>
+            <input type="password" name="newPassword2" autocomplete="new-password" required />
+          </label>
+          <p class="auth-msg" id="pwMsg"></p>
+          <button type="submit" class="auth-submit">비밀번호 변경</button>
+        </form>
+
+        <!-- 회원 탈퇴 -->
+        <div class="me-block me-danger">
+          <div class="me-sec-label">회원 탈퇴</div>
+          <p class="me-danger-desc">탈퇴하면 계정이 비활성화됩니다.</p>
+          <button type="button" class="me-withdraw" id="withdrawBtn">회원 탈퇴</button>
+          <div class="me-withdraw-confirm hidden" id="withdrawConfirm">
+            <input type="password" id="withdrawPw" placeholder="비밀번호 확인" />
+            <button type="button" class="me-withdraw-go" id="withdrawConfirmBtn">탈퇴 확정</button>
+          </div>
+          <p class="auth-msg" id="withdrawMsg"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 장바구니 드로어 -->
+    <div class="cart-scrim" id="cartScrim"></div>
+    <aside class="cart-panel" id="cartPanel" aria-label="장바구니">
+      <header class="cart-head">
+        <span>장바구니</span>
+        <button type="button" class="cbtn" id="cartClose" aria-label="닫기">×</button>
+      </header>
+      <ul class="cart-list" id="cartList"></ul>
+      <div class="cart-foot">
+        <div class="cart-total"><span>총 합계</span><span id="cartTotal">₩ 0</span></div>
+        <button type="button" class="checkout" id="checkout">주문하기</button>
+      </div>
+    </aside>
+
+    <!-- 건너뛰기: splash + 인트로 내내 떠 있다가, 메인 진입 시에만 사라짐 -->
+    <button type="button" class="skip" id="skip">skip</button>
+
+  </div>
+
+  <script src="script.js"></script>
+  <script src="auth.js"></script>
+  <script src="products.js"></script>
+  <script type="importmap">
+    { "imports": { "three": "./vendor/three.module.js" } }
+  </script>
+  <script type="module" src="custom.js"></script>
+</body>
+</html>

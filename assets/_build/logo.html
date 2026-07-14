@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<style>
+  html, body { margin: 0; padding: 0; background: transparent; }
+  #stage {
+    width: 1500px; height: 680px;
+    display: flex; align-items: center; justify-content: center;
+    background: transparent;
+  }
+  .lockup { position: relative; display: inline-block; }
+  .wordrow { position: relative; display: inline-block; }
+  .word {
+    display: block;
+    font-family: "Noto Serif KR", serif;
+    font-weight: 200;            /* ExtraLight — 가늘게 */
+    font-size: 144px;
+    line-height: 1;
+    color: #17130f;
+    letter-spacing: normal;       /* '펜의 끝' 자연스러운 간격 */
+    white-space: nowrap;
+  }
+  /* ㅌ 밑획 연장 + 펜촉 (뼈대 이미지 참고) — .word 박스 기준 절대좌표(px) */
+  .ext {
+    position: absolute; left: 0; top: 0;
+    overflow: visible; pointer-events: none;
+  }
+  /* 소제목 — 워드마크 중앙 정렬 */
+  .sub {
+    margin-top: 30px; text-align: center;
+    font-family: "Noto Serif KR", serif;
+    font-weight: 200; font-size: 26px;
+    letter-spacing: 0.52em; color: #17130f;
+    padding-left: 0.52em;
+  }
+</style>
+</head>
+<body>
+  <div id="stage">
+    <div class="lockup">
+      <div class="wordrow">
+        <span class="word">펜의 끝</span>
+        <!-- viewBox 단위 = CSS px, 좌표는 측정값 기준(ㅌ 밑획: y=142, 오른끝 x=479.5) -->
+        <svg class="ext" width="900" height="260" viewBox="0 0 900 260" fill="none">
+          <!-- ㅌ 밑획을 오른쪽으로 길게 연장 (촉을 지나 더 뻗음) -->
+          <line x1="450" y1="142" x2="762" y2="142" stroke="#17130f" stroke-width="6" stroke-linecap="butt"/>
+          <!-- 펜대(사선) — 둥근 촉 위에서 이어져 올라감 -->
+          <line x1="540" y1="116" x2="662" y2="38" stroke="#17130f" stroke-width="6" stroke-linecap="round"/>
+          <!-- 둥근 펜촉 (검은 물방울꼴, 밑선에 얹힘) -->
+          <path d="M498 142 C500 121 515 109 538 108 C561 107 575 120 580 142 Z" fill="#17130f"/>
+        </svg>
+      </div>
+      <div class="sub">THE TIP OF THE PEN</div>
+    </div>
+  </div>
+</body>
+</html>

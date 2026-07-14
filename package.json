@@ -1,0 +1,13 @@
+{
+  "name": "pen-shop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "펜의 끝 · The Tip of the Pen — vanilla front-end + MongoDB auth backend",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "mongodb": "^6.3.0"
+  }
+}
