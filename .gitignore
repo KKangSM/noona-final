@@ -1,2 +1,13 @@
+# 의존성
 node_modules/
+
+# 민감 정보 / 로컬 설정 (절대 커밋 금지)
 secrets.json
+secrets*.json
+.env
+.env.*
+*.pem
+*.key
+
+# 로그
+*.log
