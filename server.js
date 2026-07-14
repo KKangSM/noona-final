@@ -7,6 +7,8 @@ const http = require('http');
 const db = require('./backend/config/db');
 const memberRepo = require('./backend/member/member.repository');
 const productRepo = require('./backend/product/product.repository');
+const orderRepo = require('./backend/order/order.repository');
+const authService = require('./backend/auth/auth.service');
 const router = require('./backend/router');
 const { createStaticHandler } = require('./backend/lib/static');
 
@@ -23,6 +25,8 @@ async function start() {
     await db.connect();
     await memberRepo.ensureIndexes();
     await productRepo.ensureSeed();
+    await orderRepo.ensureIndexes();
+    await authService.ensureAdmin({ userId: db.cfg.ADMIN_ID, name: db.cfg.ADMIN_NAME, password: db.cfg.ADMIN_PASSWORD });
     console.log('  ✓ MongoDB 연결됨 (' + db.cfg.DB_NAME + ')');
   } catch (e) {
     console.error('  ✗ MongoDB 연결 실패:', e.message);

@@ -7,6 +7,16 @@ function parsePrice(v) {
   const n = Math.round(Number(v));
   return Number.isFinite(n) && n >= 0 ? n : null;
 }
+function parseStock(v) {
+  const n = Math.round(Number(v));
+  return Number.isFinite(n) && n >= 0 ? n : 0;
+}
+function normOptions(options) {
+  if (!Array.isArray(options)) return [];
+  return options
+    .map((o) => ({ label: String((o && o.label) || '').trim(), extra: Math.round(Number(o && o.extra)) || 0 }))
+    .filter((o) => o.label);
+}
 
 async function list() {
   return (await repo.findAll()).map(toProduct);
@@ -18,16 +28,19 @@ async function detail(id) {
   return toProduct(p);
 }
 
-async function register({ name, price }) {
+async function register({ name, price, image, description, stock, options }) {
   if (!name || !String(name).trim()) throw new DomainError(400, '상품명을 입력해 주세요.');
   const p = parsePrice(price);
   if (p === null) throw new DomainError(400, '가격을 올바르게 입력해 주세요.');
-  const doc = newProduct({ name: String(name).trim(), price: p });
+  const doc = newProduct({
+    name: String(name).trim(), price: p, image, description,
+    stock: parseStock(stock), options: normOptions(options),
+  });
   const r = await repo.insert(doc);
   return toProduct({ _id: r.insertedId, ...doc });
 }
 
-async function edit(id, { name, price }) {
+async function edit(id, { name, price, image, description }) {
   const set = {};
   if (name !== undefined) {
     if (!String(name).trim()) throw new DomainError(400, '상품명을 입력해 주세요.');
@@ -38,6 +51,10 @@ async function edit(id, { name, price }) {
     if (p === null) throw new DomainError(400, '가격을 올바르게 입력해 주세요.');
     set.price = p;
   }
+  if (image !== undefined) set.image = image || null;
+  if (description !== undefined) set.description = String(description);
+  if (stock !== undefined) set.stock = parseStock(stock);
+  if (options !== undefined) set.options = normOptions(options);
   if (!Object.keys(set).length) throw new DomainError(400, '수정할 내용이 없어요.');
   const r = await repo.update(id, set);
   const doc = r && (r.value || r);   // 드라이버 버전별 반환 형태 대응

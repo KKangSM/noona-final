@@ -2,10 +2,10 @@
 const { sendJson, readBody } = require('../lib/http');
 const service = require('./mypage.service');
 
-// GET /mypage?email=...
+// GET /mypage?userId=...
 async function detail(req, res) {
-  const email = new URL(req.url, 'http://localhost').searchParams.get('email');
-  sendJson(res, 200, await service.detail(email));
+  const userId = new URL(req.url, 'http://localhost').searchParams.get('userId');
+  sendJson(res, 200, await service.detail(userId));
 }
 
 // POST /mypage/edit

@@ -91,3 +91,9 @@ skip.addEventListener('click', () => {
   app.classList.add('done');                        // splash out
   app.classList.add('enter');                       // 인트로 out + 쇼핑 화면 in
 });
+
+// [임시] 인트로 화면 잠깐 끄기 (개발 중 빠른 확인용) — 원복: 이 블록만 삭제
+if (rafId) cancelAnimationFrame(rafId);
+timers.forEach(clearTimeout);
+app.classList.add('done');
+app.classList.add('enter');

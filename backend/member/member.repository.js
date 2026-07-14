@@ -6,31 +6,38 @@ const { STATUS } = require('./member.entity');
 const col = () => getDb().collection('users');
 
 async function ensureIndexes() {
-  await col().createIndex({ email: 1 }, { unique: true });
+  const c = col();
+  // 예전 email 유니크 인덱스 제거 (이제 로그인 키는 userId)
+  try { await c.dropIndex('email_1'); } catch { /* 없으면 무시 */ }
+  // userId 유니크 (userId 없는 옛 도큐먼트는 sparse 로 제외)
+  await c.createIndex({ userId: 1 }, { unique: true, sparse: true });
 }
 
-const findByEmail = (email) => col().findOne({ email });
+const findByUserId = (userId) => col().findOne({ userId });
 
-async function findActiveByEmail(email) {
-  const u = await col().findOne({ email });
+async function findActiveByUserId(userId) {
+  const u = await col().findOne({ userId });
   return u && u.status !== STATUS.WITHDRAWN ? u : null;
 }
 
-const existsByEmail = async (email) => !!(await col().findOne({ email }));
+const existsByUserId = async (userId) => !!(await col().findOne({ userId }));
 
 const insert = (member) => col().insertOne(member);
 
-const updateName = (email, name) =>
-  col().updateOne({ email }, { $set: { name, updatedAt: new Date() } });
+const updateName = (userId, name) =>
+  col().updateOne({ userId }, { $set: { name, updatedAt: new Date() } });
 
-const updatePassword = (email, passwordHash) =>
-  col().updateOne({ email }, { $set: { password: passwordHash, updatedAt: new Date() } });
+const updatePassword = (userId, passwordHash) =>
+  col().updateOne({ userId }, { $set: { password: passwordHash, updatedAt: new Date() } });
 
 // soft-delete: 상태만 WITHDRAWN 으로 (row 유지)
-const withdraw = (email) =>
-  col().updateOne({ email }, { $set: { status: STATUS.WITHDRAWN, updatedAt: new Date() } });
+const withdraw = (userId) =>
+  col().updateOne({ userId }, { $set: { status: STATUS.WITHDRAWN, updatedAt: new Date() } });
+
+const setRole = (userId, role) =>
+  col().updateOne({ userId }, { $set: { role, updatedAt: new Date() } });
 
 module.exports = {
-  ensureIndexes, findByEmail, findActiveByEmail, existsByEmail,
-  insert, updateName, updatePassword, withdraw,
+  ensureIndexes, findByUserId, findActiveByUserId, existsByUserId,
+  insert, updateName, updatePassword, withdraw, setRole,
 };

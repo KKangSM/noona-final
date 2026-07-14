@@ -459,13 +459,65 @@ function wire() {
   document.getElementById('cartScrim')?.addEventListener('click', closeCart);
   document.getElementById('cartList')?.addEventListener('click', cartAction);
 
+  // 주문하기 → 로그인 필수 → 체크아웃 화면
   document.getElementById('checkout')?.addEventListener('click', () => {
     if (!cartCount()) return;
-    saveCart([]);
-    renderCart();
-    const foot = document.getElementById('cartTotal');
-    foot.textContent = '주문 접수 완료 ✓';
+    const s = window.PenAuth && window.PenAuth.getSession && window.PenAuth.getSession();
+    if (!s) {                                  // 비로그인 → 로그인 유도
+      closeCart();
+      if (window.PenAuth && window.PenAuth.openAuth) window.PenAuth.openAuth();
+      return;
+    }
+    openCheckout();
   });
+
+  document.getElementById('checkoutBack')?.addEventListener('click', () => app.classList.remove('view-checkout'));
+
+  document.getElementById('shippingForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = e.target;
+    const msg = document.getElementById('checkoutMsg');
+    const s = window.PenAuth && window.PenAuth.getSession && window.PenAuth.getSession();
+    if (!s) { msg.textContent = '로그인이 필요해요.'; msg.className = 'auth-msg err'; return; }
+
+    const items = loadCart().map((it) => {
+      const item = { name: it.name, price: it.price, qty: it.qty };
+      if (it.colorName || it.pattern || it.tip || it.refill || it.text) {
+        item.options = { color: it.colorName, pattern: it.pattern, tip: it.tip, refill: it.refill, text: it.text };
+      }
+      return item;
+    });
+    if (!items.length) { msg.textContent = '장바구니가 비어 있어요.'; msg.className = 'auth-msg err'; return; }
+
+    try {
+      const res = await fetch('/orders/register', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: s.userId, items,
+          shipping: { name: f.name.value.trim(), phone: f.phone.value.trim(), address: f.address.value.trim() },
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.message || '주문에 실패했어요.');
+      saveCart([]);
+      renderCart();
+      app.classList.remove('view-checkout');
+      f.reset();
+      alert('주문이 완료되었습니다.\n주문번호: ' + data.id);
+    } catch (err) { msg.textContent = err.message; msg.className = 'auth-msg err'; }
+  });
+}
+
+// 체크아웃 화면에 장바구니 요약 채우고 열기
+function openCheckout() {
+  const cart = loadCart();
+  if (!cart.length) return;
+  document.getElementById('checkoutItems').innerHTML = cart.map((it) =>
+    `<li class="co-item"><span class="co-name">${it.name} ×${it.qty}</span><span class="co-price">${won(it.price * it.qty)}</span></li>`
+  ).join('');
+  document.getElementById('checkoutTotal').textContent = won(cart.reduce((s, x) => s + x.price * x.qty, 0));
+  closeCart();
+  app.classList.add('view-checkout');
 }
 
 buildControls();

@@ -13,8 +13,8 @@ async function login(req, res) {
 }
 
 async function checkId(req, res) {
-  const { email } = await readBody(req);
-  sendJson(res, 200, await service.checkId(email));
+  const { userId } = await readBody(req);
+  sendJson(res, 200, await service.checkId(userId));
 }
 
 module.exports = { signup, login, checkId };

@@ -9,5 +9,8 @@ secrets*.json
 *.pem
 *.key
 
+# 업로드된 상품 이미지 (로컬 저장물)
+assets/uploads/
+
 # 로그
 *.log
