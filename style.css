@@ -256,8 +256,6 @@ body {
 }
 .admin-block { margin-bottom: 36px; }
 
-.admin-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
-.admin-field-row { display: flex; gap: 8px; }
 .admin-input {
   flex: 1;
   min-width: 0;
@@ -269,28 +267,8 @@ body {
   font-family: inherit;
 }
 .admin-input:focus { border-color: #111111; }
-.admin-price { flex: 0 0 130px; }
 .admin-textarea { width: 100%; resize: vertical; line-height: 1.5; }
 
-/* 이미지 업로드 */
-.admin-image { display: flex; align-items: center; gap: 12px; }
-.admin-file {
-  flex: 0 0 auto;
-  padding: 10px 14px;
-  border: 1px dashed #c9c6bf;
-  border-radius: 8px;
-  font-size: 13px;
-  color: #666666;
-  cursor: pointer;
-}
-.admin-file:hover { border-color: #999999; color: #111111; }
-.img-preview { display: flex; }
-.img-preview img {
-  width: 60px; height: 60px;
-  object-fit: cover;
-  border-radius: 6px;
-  border: 1px solid #ececec;
-}
 .admin-thumb {
   flex: 0 0 auto;
   width: 40px; height: 40px;
@@ -638,10 +616,7 @@ body {
   z-index: 4;
 }
 
-/* 헤더 — 로고 워드마크, 넉넉한 여백 */
-.shop-head {
-  text-align: center;
-}
+/* 로고 워드마크 */
 .brand {
   margin: 0;
   line-height: 0;
@@ -650,35 +625,6 @@ body {
   width: 150px;
   height: auto;
   display: inline-block;
-}
-
-/* 슬로건 — 얇은 이탤릭, 위아래 헤어라인 여백 */
-.shop-slogan {
-  margin: 40px 0 44px;
-  text-align: center;
-  font-style: italic;
-  font-size: 13px;
-  color: #555555;
-  letter-spacing: .2px;
-}
-
-/* 컬렉션 라벨 */
-.collection-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  padding-bottom: 14px;
-  border-bottom: 1px solid #ececec;   /* 얇은 헤어라인 */
-}
-.section-label {
-  font-size: 11px;
-  letter-spacing: 3px;
-  color: #111111;
-}
-.section-count {
-  font-size: 11px;
-  letter-spacing: 1px;
-  color: #bbbbbb;
 }
 
 /* 상품 — 2열 그리드, 정사각 썸네일 + 이름/가격 */
@@ -739,60 +685,6 @@ body {
   font-size: 12px;
   color: #999999;
   letter-spacing: .3px;
-}
-
-/* ===== 히어로 (COS 풍 대형 이미지) ===== */
-.hero {
-  display: flex;
-  flex-direction: column;
-  gap: 26px;
-  padding: 4px 0 48px;
-}
-.hero-figure { margin: 0; }
-.hero-figure img { width: 100%; height: auto; display: block; }
-.hero-eyebrow {
-  font-size: 10px;
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  color: #9a9a9a;
-}
-.hero-head {
-  margin: 14px 0 12px;
-  font-size: 27px;
-  font-weight: 300;
-  line-height: 1.32;
-  letter-spacing: -.2px;
-  color: #111111;
-}
-.hero-line {
-  font-size: 12px;
-  font-style: italic;
-  letter-spacing: .4px;
-  color: #8c8c8c;
-}
-.hero-cta {
-  margin-top: 22px;
-  padding: 0 0 3px;
-  background: none;
-  border: none;
-  border-bottom: 1px solid #111111;
-  font-size: 11px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: #111111;
-  cursor: pointer;
-}
-
-/* ===== 슬림 푸터 ===== */
-.shop-foot {
-  margin-top: 44px;
-  padding: 44px 0 16px;
-  border-top: 1px solid #eeeeee;
-  text-align: center;
-  font-size: 10px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: #b0b0b0;
 }
 
 /* 하단바(푸터) — THE HYUNDAI 스타일 다크 푸터 */
@@ -871,26 +763,8 @@ body {
   .pen-title { font-size: 58px; }
   .pen-desc { font-size: 14px; }
 
-  /* 상단 바: 로고 가운데, 얇은 구분선 */
-  .shop-head {
-    padding: 30px 0 26px;
-    border-bottom: 1px solid #eeeeee;
-  }
+  /* 상단 바: 로고 크기 */
   .brand-logo { width: 168px; }
-
-  /* 히어로 — 좌 이미지 · 우 텍스트 2단 */
-  .hero {
-    flex-direction: row;
-    align-items: center;
-    gap: 60px;
-    max-width: 1120px;
-    margin: 0 auto;
-    padding: 24px 48px 84px;
-  }
-  .hero-figure { flex: 0 0 42%; }
-  .hero-text { flex: 1; }
-  .hero-head { font-size: 44px; margin: 0 0 16px; }
-  .hero-line { font-size: 13px; }
 
   /* 컨텐츠 폭 제한 + 가운데 정렬 */
   .collection {
@@ -898,7 +772,6 @@ body {
     margin: 0 auto;
     padding: 0 48px;
   }
-  .collection-head { padding-bottom: 18px; }
 
   /* 상품 4열 그리드, 여백 확대 */
   .product-list {
@@ -911,22 +784,9 @@ body {
   .price { font-size: 13px; }
 }
 
-/* 넓은 데스크톱에서 히어로/여백 더 크게 */
-@media (min-width: 1200px) {
-  .shop-slogan { font-size: 36px; margin: 110px 0 120px; }
-}
-
 /* =========================================================
    헤더 액션 (계정 + 장바구니)
    ========================================================= */
-.shop-head { position: relative; }
-.shop-actions {
-  position: absolute;
-  top: 0; right: 0;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
 .shop-cart, .shop-acct {
   position: relative;
   background: none;
@@ -941,30 +801,6 @@ body {
   align-items: center;
   gap: 8px;
 }
-.acct-name {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  font-size: 12px;
-  color: #333333;
-  letter-spacing: .3px;
-  max-width: 90px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.acct-name:hover { color: #111111; text-decoration: underline; text-underline-offset: 3px; }
-.acct-logout {
-  background: none;
-  border: 1px solid #e2e0dc;
-  border-radius: 999px;
-  padding: 4px 10px;
-  font-size: 11px;
-  color: #666666;
-  cursor: pointer;
-}
-.acct-logout:hover { border-color: #999999; color: #111111; }
 .cart-badge {
   position: absolute;
   top: -4px; right: -4px;
@@ -980,38 +816,6 @@ body {
   display: none;
 }
 .cart-badge.show { display: block; }
-
-/* =========================================================
-   커스텀 상품 카드 (컬렉션 그리드 안)
-   ========================================================= */
-.product--custom { cursor: pointer; }
-.thumb--custom {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background:
-    repeating-linear-gradient(-45deg, #f5f4f2 0 10px, #efeeec 10px 20px);
-  transition: filter .2s ease;
-}
-.product--custom:hover .thumb--custom { filter: brightness(0.97); }
-.custom-tag {
-  font-size: 11px;
-  letter-spacing: 3px;
-  color: #111111;
-  border: 1px solid #cfcdc9;
-  background: #ffffff;
-  padding: 6px 12px;
-}
-
-/* 상품 썸네일 이니셜 마크 */
-.thumb { display: flex; align-items: center; justify-content: center; }
-.thumb-mark {
-  font-size: 40px;
-  font-weight: 700;
-  color: #e2e0db;
-  user-select: none;
-}
 
 /* =========================================================
    상품 상세 페이지
