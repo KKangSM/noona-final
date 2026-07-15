@@ -109,10 +109,22 @@
       <div class="black-bar"></div>
 
       <!-- 닙 디테일 갤러리 (풀폭 3분할) -->
+      <!-- 각 구역에 마우스를 올리면 검은 슬라이드가 올라오고, 클릭하면 이동.
+           data-go : custom(커스텀펜) · detail(상품상세) · cart(장바구니) · 또는 "/경로"·"https://..."
+           문구는 .gallery-slide 안 텍스트만 바꾸면 됨. -->
       <section class="gallery">
-        <figure class="gallery-item"><img src="assets/m1.jpg" alt="닙 디테일 · 각인" /></figure>
-        <figure class="gallery-item"><img src="assets/m2.avif" alt="닙 디테일 · 측면" /></figure>
-        <figure class="gallery-item"><img src="assets/m3.jpg" alt="닙 디테일 · 정면" /></figure>
+        <figure class="gallery-item" data-go="custom" data-dir="left">
+          <img src="assets/m1.jpg" alt="닙 디테일 · 각인" />
+          <div class="gallery-slide"><span>커스텀 제작 <em>→</em></span></div>
+        </figure>
+        <figure class="gallery-item" data-go="custom" data-dir="up">
+          <img src="assets/m2.avif" alt="닙 디테일 · 측면" />
+          <div class="gallery-slide"><span>닙 컬렉션 <em>→</em></span></div>
+        </figure>
+        <figure class="gallery-item" data-go="custom" data-dir="right">
+          <img src="assets/m3.jpg" alt="닙 디테일 · 정면" />
+          <div class="gallery-slide"><span>브랜드 스토리 <em>→</em></span></div>
+        </figure>
       </section>
     </section>
 
@@ -461,6 +473,7 @@
   <script src="auth.js"></script>
   <script src="products.js"></script>
   <script src="admin.js"></script>
+  <script src="gallery.js"></script>
   <script type="importmap">
     { "imports": { "three": "./vendor/three.module.js" } }
   </script>

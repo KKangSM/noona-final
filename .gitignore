@@ -14,3 +14,6 @@ assets/uploads/
 
 # 로그
 *.log
+
+# 개발용 데모 캡처
+shots/

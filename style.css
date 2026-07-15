@@ -547,7 +547,13 @@ body {
   width: auto;
   height: auto;
   display: block;
+  transform: translate(32px, 1px) scale(1.184);   /* 편집 도구로 맞춘 배치 고정 */
+  transform-origin: center;
 }
+/* 하단 갤러리 3장 배치 고정 (편집 도구 값) */
+.gallery-item img[src$="m1.jpg"]  { transform: translate(-100px, 17px) scale(1.076); transform-origin: center; }
+.gallery-item img[src$="m2.avif"] { transform: translate(29px, -4px) scale(1.357);   transform-origin: center; }
+.gallery-item img[src$="m3.jpg"]  { transform: translate(105px, 6px) scale(1.029);   transform-origin: center; }
 .pen-copy {
   flex: 1 1 50%;                       /* 정확히 반 */
   display: flex;
@@ -581,7 +587,10 @@ body {
   display: grid;
   grid-template-columns: 1fr;      /* 모바일: 세로 스택 */
 }
-.gallery-item { margin: 0; background: #ffffff; }
+.gallery-item {
+  margin: 0; background: #ffffff;
+  position: relative; overflow: hidden; cursor: pointer;   /* 슬라이드 존 */
+}
 .gallery-item img {
   display: block;
   width: 100%;
@@ -589,6 +598,31 @@ body {
   max-height: 300px;
   object-fit: contain;        /* 촉이 잘리지 않게 전체를 보여줌 */
 }
+/* 마우스 올리면 검은 판이 슬라이드 (이미지 크기 달라도 셀 전체를 덮어 균일해 보임) */
+.gallery-slide {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(15,15,15,.93); color: #ffffff;
+  transform: translateY(100%);        /* 기본: 아래에서 위로 */
+  transition: transform .45s cubic-bezier(.22,.61,.36,1);
+  pointer-events: none;
+}
+/* 들어오는 방향 — figure 의 data-dir 로 지정 (up·down·left·right) */
+.gallery-item[data-dir="up"]    .gallery-slide { transform: translateY(100%); }
+.gallery-item[data-dir="down"]  .gallery-slide { transform: translateY(-100%); }
+.gallery-item[data-dir="left"]  .gallery-slide { transform: translateX(-100%); }
+.gallery-item[data-dir="right"] .gallery-slide { transform: translateX(100%); }
+.gallery-item:hover .gallery-slide,
+.gallery-item:focus-visible .gallery-slide { transform: translate(0, 0); }
+.gallery-slide span {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 15px; letter-spacing: 3px; font-weight: 500;
+}
+.gallery-slide em {
+  font-style: normal; font-size: 20px; line-height: 1;
+  transition: transform .3s ease;
+}
+.gallery-item:hover .gallery-slide em { transform: translateX(6px); }
 @media (min-width: 768px) {
   .gallery { grid-template-columns: repeat(3, 1fr); }
   .gallery-item img { height: 42vh; max-height: none; }
