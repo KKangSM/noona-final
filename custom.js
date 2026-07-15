@@ -30,7 +30,7 @@ const state = {
   text:    '',
 };
 
-const won = (n) => '₩ ' + n.toLocaleString('ko-KR');
+const { won } = window.PenUtil;
 
 function calcPrice(s = state) {
   let p = PRICE.base;

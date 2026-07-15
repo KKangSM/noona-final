@@ -2,23 +2,9 @@
 // 상품 등록/수정은 전용 화면(#productEditor)에서 처리.
 (function () {
   const app = document.getElementById('app');
-  const won = (n) => '₩ ' + Number(n).toLocaleString('ko-KR');
+  const { won, esc, apiGet: jget, apiPost: jpost } = window.PenUtil;
   const session = () => (window.PenAuth && window.PenAuth.getSession && window.PenAuth.getSession()) || null;
   const isAdmin = () => { const s = session(); return !!(s && s.role === 'ADMIN'); };
-
-  async function jget(path) {
-    const r = await fetch(path);
-    let d = {}; try { d = await r.json(); } catch { /* noop */ }
-    if (!r.ok) throw new Error(d.message || '요청 실패');
-    return d;
-  }
-  async function jpost(path, body) {
-    const r = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) });
-    let d = {}; try { d = await r.json(); } catch { /* noop */ }
-    if (!r.ok) throw new Error(d.message || '요청 실패');
-    return d;
-  }
-  const esc = (s) => String(s == null ? '' : s).replace(/"/g, '&quot;');
 
   /* ===== 관리자 페이지 ===== */
   const openAdmin = () => { if (!isAdmin()) { closeAdmin(); return; } app.classList.add('view-admin'); loadAll(); };

@@ -4,15 +4,7 @@
 (function () {
   const app = document.getElementById('app');
   const listEl = document.getElementById('productList');
-  const won = (n) => '₩ ' + Number(n).toLocaleString('ko-KR');
-
-  async function getJson(path) {
-    const res = await fetch(path);
-    let d = {};
-    try { d = await res.json(); } catch { /* noop */ }
-    if (!res.ok) throw new Error(d.message || '요청에 실패했어요.');
-    return d;
-  }
+  const { won, apiGet: getJson } = window.PenUtil;
 
   /* ===== 상품 라인아트 (이름 키워드로 매칭) ===== */
   const SVG_OPEN = '<svg class="pen-svg" viewBox="0 0 200 200" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';

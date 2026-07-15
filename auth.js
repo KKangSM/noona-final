@@ -7,6 +7,7 @@
 // ─────────────────────────────────────────────────────────────
 (function () {
   const app = document.getElementById('app');
+  const { won, apiGet: get, apiPost: post } = window.PenUtil;
   const SESSION_KEY = 'penSession';
 
   const getSession = () => { try { return JSON.parse(localStorage.getItem(SESSION_KEY)); } catch { return null; } };
@@ -14,26 +15,6 @@
                               : localStorage.removeItem(SESSION_KEY);
 
   window.PenAuth = { getSession };   // 다른 스크립트에서 세션 조회용
-
-  /* ===== 서버 API 호출 ===== */
-  async function post(path, body) {
-    const res = await fetch(path, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    let data = {};
-    try { data = await res.json(); } catch { /* noop */ }
-    if (!res.ok) throw new Error(data.message || '요청에 실패했어요.');
-    return data;
-  }
-  async function get(path) {
-    const res = await fetch(path);
-    let data = {};
-    try { data = await res.json(); } catch { /* noop */ }
-    if (!res.ok) throw new Error(data.message || '요청에 실패했어요.');
-    return data;
-  }
 
   /* ===== 화면 전환 ===== */
   const openAuth    = () => app.classList.add('view-auth');
@@ -45,7 +26,6 @@
   window.PenAuth.openAuth = openAuth;
   window.PenAuth.openMypage = openMypage;
 
-  const won = (n) => '₩ ' + Number(n).toLocaleString('ko-KR');
   function renderMyOrders(list) {
     const ul = document.getElementById('myOrders');
     if (!ul) return;
