@@ -122,22 +122,41 @@
   document.getElementById('detailCart').addEventListener('click', () => window.PenCart && window.PenCart.open());
   document.getElementById('detailQtyMinus').addEventListener('click', () => { detailQty = Math.max(1, detailQty - 1); updatePrices(); });
   document.getElementById('detailQtyPlus').addEventListener('click', () => { detailQty += 1; updatePrices(); });
-  document.getElementById('detailAdd').addEventListener('click', () => {
-    if (!current || !window.PenCart || current.stock === 0) return;
-    if (Array.isArray(current.options) && current.options.length && !detailOpt) {
-      alert('옵션을 선택해 주세요.');
-      return;
-    }
-    const item = {
+  // 상세 항목(옵션·수량 반영) 스냅샷
+  function detailItem() {
+    return {
+      productId: current.id,
       name: current.name + (detailOpt ? ' · ' + detailOpt.label : ''),
       price: current.price + (detailOpt ? detailOpt.extra : 0),
       qty: detailQty,
+      image: current.image || undefined,
     };
-    window.PenCart.add(item);
+  }
+  // 옵션 필수 상품인데 미선택이면 막기
+  function optionGuard() {
+    if (Array.isArray(current.options) && current.options.length && !detailOpt) {
+      alert('옵션을 선택해 주세요.');
+      return false;
+    }
+    return true;
+  }
+
+  document.getElementById('detailAdd').addEventListener('click', () => {
+    if (!current || !window.PenCart || current.stock === 0) return;
+    if (!optionGuard()) return;
+    window.PenCart.add(detailItem());
+    if (window.PenCart.toast) window.PenCart.toast('장바구니에 담았어요.');
     const btn = document.getElementById('detailAdd');
     btn.classList.add('done');
     btn.textContent = '담았습니다 ✓';
     setTimeout(() => { btn.classList.remove('done'); btn.textContent = '장바구니 담기'; }, 1100);
+  });
+
+  // 바로구매 → 장바구니 거치지 않고 곧장 주문/결제
+  document.getElementById('detailBuyNow')?.addEventListener('click', () => {
+    if (!current || !window.PenCart || current.stock === 0) return;
+    if (!optionGuard()) return;
+    if (window.PenCart.buyNow) window.PenCart.buyNow(detailItem());
   });
 
   if (listEl) loadProducts();

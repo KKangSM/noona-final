@@ -1044,6 +1044,38 @@ body {
 }
 .add-btn:hover { background: #333333; }
 .add-btn.done { background: #2e7d55; }
+.add-btn--ghost { background: #ffffff; color: #111111; border: 1px solid #d8d6d1; }
+.add-btn--ghost:hover { background: #f6f5f3; }
+
+/* 담김 안내 토스트 */
+.pen-toast {
+  position: fixed;
+  left: 50%; bottom: 40px;
+  transform: translateX(-50%) translateY(20px);
+  background: #111111; color: #ffffff;
+  padding: 12px 20px; border-radius: 999px;
+  font-size: 14px; letter-spacing: .3px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.2);
+  opacity: 0; pointer-events: none;
+  transition: opacity .25s ease, transform .25s ease;
+  z-index: 100;
+}
+.pen-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* 구매내역 주문취소 버튼 */
+.mo-cancel {
+  margin-left: 10px;
+  padding: 4px 10px;
+  border: 1px solid #d8d6d1;
+  border-radius: 999px;
+  background: #ffffff;
+  font-size: 11px;
+  color: #666666;
+  cursor: pointer;
+  font-family: inherit;
+}
+.mo-cancel:hover { border-color: #c0392b; color: #c0392b; }
+.mo-cancel:disabled { opacity: .5; cursor: default; }
 
 /* =========================================================
    장바구니 드로어
@@ -1161,7 +1193,7 @@ body {
   color: #111111;
   margin-bottom: 14px;
 }
-.checkout {
+.cart-checkout {
   width: 100%;
   padding: 14px;
   background: #111111;
@@ -1172,7 +1204,7 @@ body {
   letter-spacing: 1px;
   cursor: pointer;
 }
-.checkout:hover { background: #333333; }
+.cart-checkout:hover { background: #333333; }
 
 /* =========================================================
    로그인 / 회원가입 화면

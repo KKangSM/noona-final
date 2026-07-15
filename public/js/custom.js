@@ -30,7 +30,7 @@ const state = {
   text:    '',
 };
 
-const { won } = window.PenUtil;
+const { won, apiPost } = window.PenUtil;
 
 function calcPrice(s = state) {
   let p = PRICE.base;
@@ -363,9 +363,41 @@ function addToCart() {
     qty: 1,
   });
   flashAdded();
+  showToast('장바구니에 담았어요.');
 }
 
 function cartCount() { return loadCart().reduce((n, x) => n + x.qty, 0); }
+
+// '바로구매' 시 장바구니 대신 사용할 임시 항목
+let buyNowItems = null;
+const currentOrderItems = () => (buyNowItems && buyNowItems.length ? buyNowItems : loadCart());
+
+// 바로구매: 장바구니를 거치지 않고 해당 항목으로 곧장 주문/결제
+function buyNow(itemOrItems) {
+  const list = Array.isArray(itemOrItems) ? itemOrItems : [itemOrItems];
+  if (!list.length) return;
+  const s = window.PenAuth && window.PenAuth.getSession && window.PenAuth.getSession();
+  if (!s) { if (window.PenAuth && window.PenAuth.openAuth) window.PenAuth.openAuth(); return; }
+  buyNowItems = list;
+  closeCart();
+  openCheckout();
+}
+
+// 담김 안내 토스트 (여러 스크립트 공용 — window.PenCart.toast 로도 노출)
+let toastTimer = null;
+function showToast(text) {
+  let box = document.getElementById('penToast');
+  if (!box) {
+    box = document.createElement('div');
+    box.id = 'penToast';
+    box.className = 'pen-toast';
+    document.body.appendChild(box);
+  }
+  box.textContent = text;
+  box.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => box.classList.remove('show'), 1800);
+}
 
 function updateBadges() {
   const n = cartCount();
@@ -459,8 +491,8 @@ function wire() {
   document.getElementById('cartScrim')?.addEventListener('click', closeCart);
   document.getElementById('cartList')?.addEventListener('click', cartAction);
 
-  // 주문하기 → 로그인 필수 → 체크아웃 화면
-  document.getElementById('checkout')?.addEventListener('click', () => {
+  // 장바구니 → 주문하기 → 로그인 필수 → 체크아웃 화면
+  document.getElementById('cartCheckout')?.addEventListener('click', () => {
     if (!cartCount()) return;
     const s = window.PenAuth && window.PenAuth.getSession && window.PenAuth.getSession();
     if (!s) {                                  // 비로그인 → 로그인 유도
@@ -468,10 +500,14 @@ function wire() {
       if (window.PenAuth && window.PenAuth.openAuth) window.PenAuth.openAuth();
       return;
     }
+    buyNowItems = null;                        // 장바구니 전체 주문
     openCheckout();
   });
 
-  document.getElementById('checkoutBack')?.addEventListener('click', () => app.classList.remove('view-checkout'));
+  document.getElementById('checkoutBack')?.addEventListener('click', () => {
+    buyNowItems = null;
+    app.classList.remove('view-checkout');
+  });
 
   document.getElementById('shippingForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -480,8 +516,10 @@ function wire() {
     const s = window.PenAuth && window.PenAuth.getSession && window.PenAuth.getSession();
     if (!s) { msg.textContent = '로그인이 필요해요.'; msg.className = 'auth-msg err'; return; }
 
-    const items = loadCart().map((it) => {
+    const items = currentOrderItems().map((it) => {
       const item = { name: it.name, price: it.price, qty: it.qty };
+      if (it.productId) item.productId = it.productId;
+      if (it.image) item.image = it.image;
       if (it.colorName || it.pattern || it.tip || it.refill || it.text) {
         item.options = { color: it.colorName, pattern: it.pattern, tip: it.tip, refill: it.refill, text: it.text };
       }
@@ -489,33 +527,112 @@ function wire() {
     });
     if (!items.length) { msg.textContent = '장바구니가 비어 있어요.'; msg.className = 'auth-msg err'; return; }
 
+    const submitBtn = f.querySelector('[type=submit]');
+    if (submitBtn) submitBtn.disabled = true;
+    msg.textContent = '주문을 생성하는 중…'; msg.className = 'auth-msg';
     try {
-      const res = await fetch('/orders/register', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: s.userId, items,
-          shipping: { name: f.name.value.trim(), phone: f.phone.value.trim(), address: f.address.value.trim() },
-        }),
+      // 1) 주문 생성 (PENDING) — 서버가 주문번호·금액 확정
+      const order = await apiPost('/orders/register', {
+        userId: s.userId, items,
+        shipping: { name: f.name.value.trim(), phone: f.phone.value.trim(), address: f.address.value.trim() },
       });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.message || '주문에 실패했어요.');
-      saveCart([]);
-      renderCart();
-      app.classList.remove('view-checkout');
-      f.reset();
-      alert('주문이 완료되었습니다.\n주문번호: ' + data.id);
-    } catch (err) { msg.textContent = err.message; msg.className = 'auth-msg err'; }
+      // 2) 결제창 파라미터 준비 (서버 서명)
+      const pay = await apiPost('/payment/inicis/prepare', { orderNo: order.orderNo, userId: s.userId });
+      // 3) KG이니시스 결제창 호출 → 성공 시 서버 returnUrl 이 SPA(?pay=done)로 리다이렉트
+      //    (장바구니 비움은 결제 완료 복귀 때. 바로구매면 장바구니 안 건드림)
+      sessionStorage.setItem('penPayMode', buyNowItems && buyNowItems.length ? 'buynow' : 'cart');
+      msg.textContent = '결제창을 여는 중…';
+      await openInicis(pay);
+    } catch (err) {
+      msg.textContent = err.message; msg.className = 'auth-msg err';
+      if (submitBtn) submitBtn.disabled = false;
+    }
   });
+}
+
+// KG이니시스 표준결제(INIStdPay) 창 호출
+const INICIS_SDK = 'https://stdpay.inicis.com/stdjs/INIStdPay.js';
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if ([...document.scripts].some((el) => el.src === src)) return resolve();
+    const el = document.createElement('script');
+    el.src = src;
+    el.onload = () => resolve();
+    el.onerror = () => reject(new Error('결제 모듈을 불러오지 못했어요.'));
+    document.head.appendChild(el);
+  });
+}
+
+async function openInicis(p) {
+  await loadScript(INICIS_SDK);
+  if (!window.INIStdPay) throw new Error('결제 모듈을 불러오지 못했어요.');
+
+  document.getElementById('inicisForm')?.remove();
+  const form = document.createElement('form');
+  form.id = 'inicisForm';
+  form.method = 'POST';
+  const fields = {
+    version: '1.0',
+    mid: p.mid,
+    oid: p.oid,
+    price: p.price,
+    timestamp: p.timestamp,
+    signature: p.signature,
+    verification: p.verification,
+    mKey: p.mKey,
+    use_chkfake: 'Y',
+    currency: 'WON',
+    goodname: p.goodname,
+    buyername: p.buyername,
+    buyertel: p.buyertel,
+    buyeremail: p.buyeremail,
+    returnUrl: p.returnUrl,
+    closeUrl: p.closeUrl,
+    gopaymethod: 'Card',
+    acceptmethod: 'HTML5_INICIS',
+    charset: 'UTF-8',
+  };
+  for (const [k, v] of Object.entries(fields)) {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = k;
+    input.value = v == null ? '' : String(v);
+    form.appendChild(input);
+  }
+  document.body.appendChild(form);
+  window.INIStdPay.pay('inicisForm');
+}
+
+// 결제 리다이렉트 복귀 처리 (?pay=done|fail|cancel)
+function handlePaymentReturn() {
+  const q = new URLSearchParams(location.search);
+  const pay = q.get('pay');
+  if (!pay) return;
+  if (pay === 'done') {
+    if (sessionStorage.getItem('penPayMode') !== 'buynow') { saveCart([]); renderCart(); }
+    alert('결제가 완료되었습니다.\n주문번호: ' + (q.get('orderNo') || ''));
+  } else if (pay === 'fail') {
+    alert('결제에 실패했어요.\n' + (q.get('msg') || ''));
+  } else if (pay === 'cancel') {
+    alert('결제가 취소되었습니다.');
+  }
+  sessionStorage.removeItem('penPayMode');
+  history.replaceState(null, '', location.pathname);   // 새로고침 시 재실행 방지
 }
 
 // 체크아웃 화면에 장바구니 요약 채우고 열기
 function openCheckout() {
-  const cart = loadCart();
+  const cart = currentOrderItems();
   if (!cart.length) return;
-  document.getElementById('checkoutItems').innerHTML = cart.map((it) =>
+  const subtotal = cart.reduce((s, x) => s + x.price * x.qty, 0);
+  const shippingFee = subtotal >= 50000 || subtotal === 0 ? 0 : 3000;   // 서버 정책과 동일
+  const rows = cart.map((it) =>
     `<li class="co-item"><span class="co-name">${it.name} ×${it.qty}</span><span class="co-price">${won(it.price * it.qty)}</span></li>`
   ).join('');
-  document.getElementById('checkoutTotal').textContent = won(cart.reduce((s, x) => s + x.price * x.qty, 0));
+  document.getElementById('checkoutItems').innerHTML = rows +
+    `<li class="co-item"><span class="co-name">배송비</span><span class="co-price">${shippingFee ? won(shippingFee) : '무료'}</span></li>`;
+  document.getElementById('checkoutTotal').textContent = won(subtotal + shippingFee);
   closeCart();
   app.classList.add('view-checkout');
 }
@@ -524,6 +641,7 @@ buildControls();
 updatePrice();
 wire();
 renderCart();
+handlePaymentReturn();   // 결제창에서 돌아온 경우(?pay=...) 처리
 
 // 다른 스크립트(디테일 페이지 등)에서 장바구니를 재사용할 수 있게 공개
-window.PenCart = { add: addItem, open: openCart, render: renderCart };
+window.PenCart = { add: addItem, open: openCart, render: renderCart, buyNow, toast: showToast };

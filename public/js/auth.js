@@ -33,14 +33,35 @@
       ? list.map((o) => {
           const when = new Date(o.createdAt).toLocaleDateString('ko-KR');
           const names = o.items.map((it) => `${it.name}×${it.qty}`).join(', ');
+          const cancelBtn = o.status === 'PAID'
+            ? `<button type="button" class="mo-cancel" data-orderno="${o.orderNo}">주문취소</button>` : '';
           return `<li class="my-order">
             <div class="mo-top"><span class="mo-when">${when}</span><span class="mo-total">${won(o.total)}</span></div>
             <div class="mo-items">${names}</div>
-            <div class="mo-status">${o.status}</div>
+            <div class="mo-status">${statusLabel(o.status)}${cancelBtn}</div>
           </li>`;
         }).join('')
       : '<li class="cart-empty">주문 내역이 없어요.</li>';
   }
+
+  const STATUS_LABEL = { PENDING: '결제대기', PAID: '결제완료', SHIPPED: '배송중', DELIVERED: '배송완료', CANCELLED: '취소됨' };
+  const statusLabel = (s) => STATUS_LABEL[s] || s;
+
+  // 구매내역 주문취소 (PAID 주문만) — 위임 처리
+  document.getElementById('myOrders')?.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.mo-cancel');
+    if (!btn) return;
+    if (!confirm('이 주문을 취소할까요?')) return;
+    const s = getSession();
+    btn.disabled = true; btn.textContent = '취소 중…';
+    try {
+      const r = await post('/payment/inicis/cancel', { orderNo: btn.dataset.orderno, userId: s.userId });
+      alert(r && r.refunded
+        ? '결제가 취소·환불되었습니다.'
+        : '주문이 취소되었습니다.\n(테스트 상점이라 실제 청구가 없어 환불 없이 취소 처리됨)');
+      loadMypage();
+    } catch (err) { alert(err.message); btn.disabled = false; btn.textContent = '주문취소'; }
+  });
 
   /* ===== 헤더 계정 영역 ===== */
   const PERSON_SVG =

@@ -5,6 +5,7 @@ const mypage = require('./mypage/mypage.controller');
 const product = require('./product/product.controller');
 const order = require('./order/order.controller');
 const upload = require('./upload/upload.controller');
+const payment = require('./payment/payment.controller');
 const { sendJson } = require('./lib/http');
 const { DomainError } = require('./lib/errors');
 
@@ -31,6 +32,11 @@ const routes = [
 
   ['GET',  '/admin/orders',          order.adminList],
   ['POST', '/admin/upload',          upload.upload],
+
+  ['POST', '/payment/inicis/prepare', payment.inicisPrepare],
+  ['POST', '/payment/inicis/cancel',  payment.inicisCancel],
+  ['POST', '/payment/inicis/return',  payment.inicisReturn],
+  ['GET',  '/payment/inicis/close',   payment.inicisClose],
 ];
 
 // 패턴과 URL 을 세그먼트 단위로 비교 → 일치하면 params, 아니면 null
