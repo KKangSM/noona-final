@@ -1,4 +1,4 @@
-// 이미지 업로드 (어드민 전용) — base64 data URL 을 받아 assets/uploads/ 에 저장
+// 이미지 업로드 (어드민 전용) — base64 data URL 을 받아 public/assets/uploads/ 에 저장
 const fs = require('fs');
 const path = require('path');
 const { sendJson, readBody } = require('../lib/http');
@@ -6,7 +6,7 @@ const { DomainError } = require('../lib/errors');
 const memberRepo = require('../member/member.repository');
 const { ROOT } = require('../config/db');
 
-const UPLOAD_DIR = path.join(ROOT, 'assets', 'uploads');
+const UPLOAD_DIR = path.join(ROOT, 'public', 'assets', 'uploads');
 const EXT = {
   'image/png': 'png', 'image/jpeg': 'jpg', 'image/jpg': 'jpg',
   'image/webp': 'webp', 'image/avif': 'avif', 'image/gif': 'gif',

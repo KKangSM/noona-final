@@ -10,7 +10,7 @@ secrets*.json
 *.key
 
 # 업로드된 상품 이미지 (로컬 저장물)
-assets/uploads/
+public/assets/uploads/
 
 # 로그
 *.log

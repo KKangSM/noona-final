@@ -34,13 +34,20 @@
 
 ```
 final/
-├─ index.html · style.css
-├─ script.js          스플래시/인트로
-├─ auth.js            로그인·회원가입·내정보 (프론트)
-├─ products.js        상품 목록·상세 (프론트)
-├─ custom.js          3D 커스텀 펜 + 장바구니
-├─ vendor/            three.module.js
-├─ server.js          서버 진입점
+├─ public/            브라우저가 받는 정적 파일 (웹 루트)
+│  ├─ index.html
+│  ├─ css/style.css
+│  ├─ js/
+│  │  ├─ common.js       공용 유틸 (won · esc · apiGet · apiPost)
+│  │  ├─ script.js       스플래시/인트로
+│  │  ├─ auth.js         로그인·회원가입·내정보 (프론트)
+│  │  ├─ products.js     상품 목록·상세 (프론트)
+│  │  ├─ admin.js        관리자 (상품·주문)
+│  │  ├─ gallery.js      하단 갤러리 내비
+│  │  └─ custom.js       3D 커스텀 펜 + 장바구니
+│  ├─ assets/         이미지 · uploads/
+│  └─ vendor/         three.module.js
+├─ server.js          서버 진입점 (public/ 정적 서빙 + API)
 └─ backend/           계층형 백엔드 (도메인 우선)
    ├─ config/db.js
    ├─ lib/            http · errors · static
@@ -48,6 +55,8 @@ final/
    ├─ auth/           service · controller
    ├─ mypage/         service · controller
    ├─ product/        entity · repository · service · controller
+   ├─ order/          entity · repository · service · controller
+   ├─ upload/         controller
    └─ router.js
 ```
 

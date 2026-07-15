@@ -4,6 +4,7 @@
 // 실행:  node server.js   →  http://localhost:5173  (file:// 로 열면 안 됨)
 
 const http = require('http');
+const path = require('path');
 const db = require('./backend/config/db');
 const memberRepo = require('./backend/member/member.repository');
 const productRepo = require('./backend/product/product.repository');
@@ -13,7 +14,7 @@ const router = require('./backend/router');
 const { createStaticHandler } = require('./backend/lib/static');
 
 const PORT = db.cfg.PORT || 5173;
-const serveStatic = createStaticHandler(db.ROOT);
+const serveStatic = createStaticHandler(path.join(db.ROOT, 'public'));   // 프론트 정적 파일은 public/ 아래
 
 const server = http.createServer(async (req, res) => {
   if (await router.handle(req, res)) return;   // API 라우트
