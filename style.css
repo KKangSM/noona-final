@@ -552,7 +552,7 @@ body {
 }
 /* 하단 갤러리 3장 배치 고정 (편집 도구 값) */
 .gallery-item img[src$="m1.jpg"]  { transform: translate(-100px, 17px) scale(1.076); transform-origin: center; }
-.gallery-item img[src$="m2.avif"] { transform: translate(29px, -4px) scale(1.357);   transform-origin: center; }
+.gallery-item img[src$="m2.avif"] { transform: translate(29px, 3px) scale(1.357);   transform-origin: center; }
 .gallery-item img[src$="m3.jpg"]  { transform: translate(105px, 6px) scale(1.029);   transform-origin: center; }
 .pen-copy {
   flex: 1 1 50%;                       /* 정확히 반 */
@@ -799,7 +799,7 @@ body {
 .site-foot {
   position: relative;
   flex: 0 0 auto;
-  margin-top: 40px;
+  margin-top: 0;
   padding: 40px 26px 26px;
   background: #111111;
   color: #9a9a9a;
@@ -829,7 +829,7 @@ body {
 .foot-top:hover { background: #e7e0d0; }
 
 @media (min-width: 768px) {
-  .site-foot { padding: 54px 48px 32px; margin-top: 60px; }
+  .site-foot { padding: 54px 48px 32px; margin-top: 0; }
   .foot-inner { flex-direction: row; justify-content: space-between; gap: 44px; }
   .foot-brand { flex: 0 0 auto; }
   .foot-links { flex-direction: column; gap: 10px; flex: 0 0 auto; }
